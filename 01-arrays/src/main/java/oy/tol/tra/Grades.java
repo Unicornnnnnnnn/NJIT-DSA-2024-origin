@@ -16,6 +16,7 @@ public class Grades {
       this.grades = new Integer [grades.length];
       for (int counter = 0; counter < grades.length; counter++) {
          this.grades[counter] = grades[counter];
+         
       }
    }
 
@@ -31,15 +32,7 @@ public class Grades {
        5. Fix the issue.
        6. Transform the algorithm to <strong>use</strong> the generic one from Algorithms.java, as instructed in the readme file.
       */
-      int left = 0;
-      int right = grades.length - 1;
-      while (left < right) {
-          int temp = grades[left];
-          grades[left] = grades[right];
-          grades[right] = temp;
-          left++;
-          right--;
-      }
+     Algorithms.reverse(grades);
       
    }
 
@@ -47,23 +40,7 @@ public class Grades {
     * Sorts the array to ascending order.
     */
     
-    public static void insertionSort(Integer[] result) {
-      if (result == null || result.length <= 1) {
-          return;
-      }
-
-      for (int i = 1; i < result.length; i++) {
-          int record = result[i];
-          int j = i - 1;
-
-          while (j >= 0 && result[j] > record) {
-              result[j + 1] = result[j];
-              j--;
-          }
-
-          result[j + 1] = record;
-      }
-  }
+    
    public void sort() {
       /* TODO:
        1. Edit the test data files to see if the sort() really works or not.
@@ -73,7 +50,7 @@ public class Grades {
        5. Fix the issue.
        6. Transform the algorithm to <strong>use</strong> the generic one from Algorithms.java as instructed in the readme file.
       */
-      insertionSort(grades);
+      Algorithms.sort(grades);
 
    }
 
