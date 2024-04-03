@@ -1,115 +1,148 @@
 package oy.tol.tra;
-import java.util.ArrayList;
-public class QueueImplementation<T> implements QueueInterface<T> {
 
-    private ArrayList<T> arr;
-    private int front;
-    private int rear;
-    private int capacity;
-    private int size;
-    
 
-    public QueueImplementation(int capacity) {
-        this.capacity = capacity;
-        this.arr = new ArrayList<>(capacity);
-        front = 0;
-        rear = -1;
-        size = 0;
-    }
+public class QueueImplementation<E> implements QueueInterface<E> {
 
-    
-    public void enqueue(T item) throws QueueAllocationException, NullPointerException {
-        if (item == null) {
-            throw new NullPointerException("the element is null");
-        }
-        if (size == capacity) {
-            reallocate(capacity * 2);
-        }
-        rear = (rear + 1) % capacity;
-        if (rear == arr.size()) {
-            arr.add(item);
-        }
-        else{
-            arr.set(rear, item);
-        }
-        size++;
-    }
-    
-    
-    private void reallocate(int newCapacity) {
-        ArrayList<T> newArray = new ArrayList<>(newCapacity);
-       
-        for (int i = 0; i < size; i++) {
-            int index = (front + i) % capacity;
-            newArray.add(arr.get(index));
-        }
-    
-        arr = newArray;
-        front = 0;
-        rear = size - 1;
-        capacity = newCapacity;
-    }
+   private Object [] itemArray;
+   private int capacity;
+   private static final int MIN_QUEUE_SIZE = 10;
+   private static final int MAX_QUEUE_SIZE = 100;
+   private int tail = 0;
+   private int head = 0;
+   private int numbers=0;
+   /**
+    * @throws QueueAllocationException
+    */
 
-    
-    public T dequeue() throws QueueIsEmptyException {
-        if (isEmpty()) {
-            throw new QueueIsEmptyException("Queue is empty. Cannot dequeue.");
-        }
+   /** 
+    * @param capacity 
+    * @throws QueueAllocationException 
+    */
+   public QueueImplementation(int capacity) throws QueueAllocationException {
+      
+      if(capacity<2){
+         throw new QueueAllocationException("the size is less than 2");
+      }
 
-        T item = arr.get(front);
-        front = (front + 1) % capacity;
-        size--;
-        
+      try{
+         itemArray = new Object[capacity];
+         this.capacity=capacity;
+         //change
+         head=0;
+         tail=0;
+         numbers=0;
+      }
+     catch(Exception e) {
+         throw new QueueAllocationException("Cannot allocate room for the internal array.");
+      }
 
-        if (size == 0) {
-            front = 0;
-            rear = -1;
-        }
+   }
+   
 
-        return item;
-    }
+   @Override
+   public int capacity() {
+      return capacity;
+   }
 
-    
-    public boolean isEmpty() {
-        return (size == 0);
-    }
+   @Override
+   public void enqueue(E element) throws QueueAllocationException, NullPointerException {
+      if (element==null) {
+         throw new NullPointerException("can't store element with null value");
+      }
+      if (tail==head&&numbers==capacity) {
+         expandCapacity(capacity+1);
+      }
+      itemArray[tail]=element;
+      tail++;
+      if (tail>=capacity) {
+         tail=0;
+      }
+      numbers++;
+   }
 
-    
-    public int capacity() {
-        return capacity;
-    }
+   private void expandCapacity(int newCapacity) {
+      Object[] newArray = new Object[newCapacity];
+      for (int i = 0; i < capacity; i++) {
+         if(i>=head){
+            newArray[i+1] = itemArray[i];
+         }
+         else{
+            newArray[i] = itemArray[i];
+         }
+      }
+      head++;
+      itemArray = newArray;
+      capacity = newCapacity;
+  }
 
-    
-    public T element() throws QueueIsEmptyException {
-        if (rear == -1) {
-            throw new QueueIsEmptyException("Queue is empty");
-        }
-        return arr.get(front);
-    }
+   @SuppressWarnings("unchecked")
+   @Override
+   public E dequeue() throws QueueIsEmptyException {
+      if (head==tail&&numbers==0){
+         throw new QueueIsEmptyException("Underflow");
+      }
+      else{
+         E t=(E)itemArray[head];
+         //change
+         itemArray[head]=null;
 
-    
-    public int size() {
-        return size;
-    }
+         head=head+1;
+         if(head>=capacity){
+            head=0;
+         }
+         numbers--;
+         return t;
+      }
+   }
 
-    
-    public void clear() {
-        front = 0;
-        rear = -1;
-        size = 0;
-    }
+   @SuppressWarnings("unchecked")
+   @Override
+   public E element() throws QueueIsEmptyException {
+      if (head==tail&&numbers==0) {
+         throw new QueueIsEmptyException("Underflow");
+      } 
+      else{
+         return (E)itemArray[head];
+      }
+   }
 
-    
-    public String toString() {
-        StringBuilder builder = new StringBuilder("[");
-        for (int i = 0; i < size; i++) {
-            int index = (i + front) % capacity;
-            builder.append(arr.get(index));
-            if (i < size - 1) {
-                builder.append(", ");
-            }
-        }
-        builder.append("]");
-        return builder.toString();
-    }
+   @Override
+   public int size() {
+      return numbers;
+   } 
+
+   @Override
+   public void clear() {
+      tail=head; 
+      numbers=0;
+      //change
+      tail=0;
+      head=0;
+   } 
+
+   @Override
+   public boolean isEmpty() {
+      boolean flag;
+      flag=(numbers==0);
+      return flag;
+   }
+
+   @Override
+   public String toString() {
+      StringBuilder builder = new StringBuilder("[");
+      for (var index = 0; index <= (numbers-1); index++) {
+         if (index+head>=capacity) {
+            builder.append(itemArray[index+head-capacity].toString());
+         }
+         else{
+            builder.append(itemArray[index+head].toString());
+         }
+         
+         if (index < (numbers-1)) {
+            builder.append(", ");
+         }
+      }
+      builder.append("]");
+      return builder.toString();
+   }
 }
